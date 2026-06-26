@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Attendance Mobile",
+    "slug": "attendance-mobile",
+    "version": "1.0.0",
+    "assetBundlePatterns": ["**/*"],
+    "platforms": ["ios", "android", "web"],
+    "sdkVersion": "54.0.0"
+  }
+}

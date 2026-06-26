@@ -54,8 +54,7 @@ public class ElementController {
     return "No records were found to import.";
   }
 
-  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart
-  // multipurpose endpoint)
+  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart multipurpose endpoint)
   @PostMapping("/verify-nfc")
   public String handleNfcTraffic(@RequestBody Map<String, Object> payload) {
 
