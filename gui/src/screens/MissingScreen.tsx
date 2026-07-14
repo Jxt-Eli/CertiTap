@@ -6,8 +6,9 @@ import {
   StyleSheet,
   Text,
   View,
+  KeyboardAvoidingView,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, Platform } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
 import StatusCard from '../components/StatusCard';
 import TextInputField from '../components/TextInputField';
@@ -52,71 +53,70 @@ export default function MissingScreen() {
   };
 
   return (
-    <ScreenContainer>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>Attendance</Text>
-        <Text style={styles.title}>Absent Students</Text>
-        {list.length > 0 ? (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{list.length} not checked in</Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* Student list */}
-      <FlatList
-        data={list}
-        keyExtractor={(item, i) => `${item}-${i}`}
-        style={styles.list}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={load}
-            tintColor={palette.primary}
-            colors={[palette.primary]}
-          />
-        }
-        renderItem={({ item }) => (
-          <StatusCard
-            title={item}
-            badge={{ label: 'Absent', type: 'error' }}
-          />
-        )}
-        ListEmptyComponent={
-          !refreshing ? (
-            <View style={styles.emptyWrap}>
-              <Text style={styles.emptyIcon}>✓</Text>
-              <Text style={styles.emptyTitle}>All present</Text>
-              <Text style={styles.emptyBody}>
-                No unchecked students at the moment. Pull down to refresh.
-              </Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScreenContainer>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>Attendance</Text>
+          <Text style={styles.title}>Absent Students</Text>
+          {list.length > 0 ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{list.length} not checked in</Text>
             </View>
-          ) : null
-        }
-        contentContainerStyle={
-          list.length === 0 ? styles.emptyContainer : styles.listContent
-        }
-      />
+          ) : null}
+        </View>
 
-      {/* Manual override */}
-      <View style={styles.manualWrap}>
-        <Text style={styles.manualLabel}>Manual Override</Text>
-        <TextInputField
-          label="Student Index Number"
-          value={manualIndex}
-          onChangeText={setManualIndex}
-          placeholder="e.g. 6147824"
-          autoCapitalize="characters"
+        <FlatList
+          data={list}
+          keyExtractor={(item, i) => `${item}-${i}`}
+          style={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={load}
+              tintColor={palette.primary}
+              colors={[palette.primary]}
+            />
+          }
+          renderItem={({ item }) => (
+            <StatusCard
+              title={item}
+              badge={{ label: 'Absent', type: 'error' }}
+            />
+          )}
+          ListEmptyComponent={
+            !refreshing ? (
+              <View style={styles.emptyWrap}>
+                <Text style={styles.emptyIcon}>✓</Text>
+                <Text style={styles.emptyTitle}>All present</Text>
+                <Text style={styles.emptyBody}>
+                  No unchecked students at the moment. Pull down to refresh.
+                </Text>
+              </View>
+            ) : null
+          }
+          contentContainerStyle={
+            list.length === 0 ? styles.emptyContainer : styles.listContent
+          }
         />
-        <AppButton
-          label="Mark Present"
-          onPress={handleManualCheckIn}
-          loading={checkingIn}
-          disabled={checkingIn}
-        />
-      </View>
-    </ScreenContainer>
+
+        <View style={styles.manualWrap}>
+          <Text style={styles.manualLabel}>Manual Override</Text>
+          <TextInputField
+            label="Student Index Number"
+            value={manualIndex}
+            onChangeText={setManualIndex}
+            placeholder="e.g. 6147824"
+            autoCapitalize="characters"
+          />
+          <AppButton
+            label="Mark Present"
+            onPress={handleManualCheckIn}
+            loading={checkingIn}
+            disabled={checkingIn}
+          />
+        </View>
+      </ScreenContainer>
+    </KeyboardAvoidingView>
   );
 }
 

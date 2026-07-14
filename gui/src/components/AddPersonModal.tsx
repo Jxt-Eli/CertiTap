@@ -24,14 +24,12 @@ type Props = {
 export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }: Props) {
   const [fullName, setFullName] = useState('');
   const [indexNumber, setIndexNumber] = useState('');
-  const [referenceNumber, setReferenceNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
     setFullName('');
     setIndexNumber('');
-    setReferenceNumber('');
     setError(null);
   };
 
@@ -41,7 +39,7 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
   };
 
   const handleSubmit = async () => {
-    if (!fullName.trim() || !indexNumber.trim() || !referenceNumber.trim()) {
+    if (!fullName.trim() || !indexNumber.trim()){
       setError('All fields are required.');
       return;
     }
@@ -51,7 +49,6 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
       incomingNfc: cardUid,
       fullName: fullName.trim(),
       indexNumber: indexNumber.trim(),
-      referenceNumber: referenceNumber.trim(),
     });
     setLoading(false);
     if (result.success) {
@@ -99,14 +96,6 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
             placeholder="e.g. S1001"
             autoCapitalize="characters"
           />
-          <TextInputField
-            label="Reference Number"
-            value={referenceNumber}
-            onChangeText={setReferenceNumber}
-            placeholder="e.g. REF-501"
-            autoCapitalize="characters"
-          />
-
           <View style={styles.actions}>
             {loading ? (
               <ActivityIndicator color={palette.primary} style={{ paddingVertical: 14 }} />

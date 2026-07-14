@@ -1,5 +1,12 @@
-// ─── Change this if your laptop IP changes ────────────────────────────────────
-const BASE_URL = 'http://10.29.129.30/api/elements';
+// INFO: ─── Change in prod/dev ────────────────────────────────────
+//
+const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
+const PROD_URL = 'https://your-app.railway.app/api/elements';
+
+// Switch to false when building for presentation
+const IS_DEV = true;
+
+const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,7 +20,6 @@ export type RegisterPayload = {
   incomingNfc: string;
   fullName: string;
   indexNumber: string;
-  referenceNumber: string;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -87,12 +93,24 @@ export async function registerStudent(
 
 // ─── Endpoint 3: Fetch unchecked student names ────────────────────────────────
 
+// export async function fetchMissingStudents(): Promise<string[]> {
+//   try {
+//     const response = await fetch(`${BASE_URL}/unchecked`);
+//     if (!response.ok) return [];
+//     return await response.json();
+//   } catch {
+//     return [];
+//   }
+// }
 export async function fetchMissingStudents(): Promise<string[]> {
   try {
     const response = await fetch(`${BASE_URL}/unchecked`);
+    const text = await response.text();
+    console.log('unchecked response:', response.status, text);
     if (!response.ok) return [];
-    return await response.json();
-  } catch {
+    return JSON.parse(text);
+  } catch (e) {
+    console.log('unchecked fetch error:', e);
     return [];
   }
 }

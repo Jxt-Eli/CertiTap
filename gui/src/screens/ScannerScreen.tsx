@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import NfcManager, { NfcTech, NfcB, IsoDep } from 'react-native-nfc-manager';
 import ScreenContainer from '../components/ScreenContainer';
 import NfcAnimation from '../components/NfcAnimation';
 import AppButton from '../components/AppButton';
@@ -48,7 +48,11 @@ export default function ScannerScreen() {
     setScanState('scanning');
     setResult(null);
     try {
-      await NfcManager.requestTechnology(NfcTech.Ndef);
+      await NfcManager.requestTechnology([
+      NfcTech.NfcA,
+      NfcTech.NfcB,
+      NfcTech.IsoDep,
+      ])
       const tag = await NfcManager.getTag();
       const uid = tag?.id ?? null;
       if (!uid) {
@@ -119,13 +123,11 @@ export default function ScannerScreen() {
 
   return (
     <ScreenContainer>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Attendance</Text>
         <Text style={styles.title}>CertiTap</Text>
       </View>
 
-      {/* Animation area */}
       <View style={styles.animArea}>
         <NfcAnimation active={isIdleOrScanning} />
         {scanState === 'scanning' && (
@@ -136,7 +138,6 @@ export default function ScannerScreen() {
         )}
       </View>
 
-      {/* Result */}
       {hasResult && result ? (
         <Animated.View style={{ opacity: resultOpacity }}>
           <StatusCard
@@ -165,7 +166,6 @@ export default function ScannerScreen() {
         </Animated.View>
       ) : null}
 
-      {/* Scan controls */}
       {isIdleOrScanning ? (
         <View style={styles.actions}>
           {nfcSupported ? (
@@ -177,7 +177,7 @@ export default function ScannerScreen() {
             />
           ) : null}
           <AppButton
-            label="Simulate Scan"
+            label="Scan Student ID"
             onPress={handleSimulate}
             variant="ghost"
             disabled={scanState === 'scanning'}

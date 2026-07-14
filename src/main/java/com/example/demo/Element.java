@@ -9,6 +9,8 @@ public class Element {
   @Id // Required: Marks indexNumber as the primary key for the 'elements' table
   private String indexNumber;
   private String nfcCode;
+
+  private String fullName;
   private boolean checked = false;
 
   // --- GETTERS & SETTERS ---
@@ -27,6 +29,14 @@ public class Element {
 
   public void setNfcCode(String nfcCode) {
     this.nfcCode = nfcCode;
+  }
+  
+  public String getfullName() {
+    return fullName;
+  }
+
+  public void setfullName(String fullName) {
+    this.fullName = fullName;
   }
 
   public boolean isChecked() {
