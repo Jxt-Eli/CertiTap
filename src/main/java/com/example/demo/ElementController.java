@@ -54,8 +54,7 @@ public class ElementController {
     return "No records were found to import.";
   }
 
-  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart
-  // multipurpose endpoint)
+  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart multipurpose endpoint)
   @PostMapping("/verify-nfc")
   public String handleNfcTraffic(@RequestBody Map<String, Object> payload) {
 
@@ -65,6 +64,7 @@ public class ElementController {
       Element newElement = new Element();
 
       // Realigned: Setting values and saving to 'repository' (elements table)
+      newElement.setfullName((String) payload.get("fullName"));
       newElement.setIndexNumber((String) payload.get("indexNumber"));
       newElement.setNfcCode((String) payload.get("incomingNfc"));
       newElement.setChecked(false);
@@ -104,7 +104,7 @@ public class ElementController {
         .map(element -> {
           return studentRepository.findById(element.getIndexNumber())
               .map(Student::getFullName)
-              .orElse("Unknown Student (" + element.getIndexNumber() + ")");
+              .orElse("Unmarked Students: (" + "Index: " + element.getIndexNumber() + " |" + " Name: " + element.getfullName() + ")\n");
         })
         .toList();
   }
@@ -129,5 +129,14 @@ public class ElementController {
     repository.save(attendanceRecord);
 
     return "Manual Backup Success: Attendance marked for " + studentProfile.getFullName() + "!";
+  }
+
+  // NOTE: Endpoint 5: Clear all external student pulled info from `students`
+  // table
+  @DeleteMapping("/reset")
+  public String emptyTables() {
+    studentRepository.deleteAll();
+    repository.deleteAll();
+    return "Success: Tables cleared!";
   }
 }

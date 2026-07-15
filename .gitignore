@@ -40,3 +40,6 @@ build/
 # Java Language Server configuration caches
 .lsp/
 .jdtls/
+
+# Frontend stuff
+gui/node_modules/
