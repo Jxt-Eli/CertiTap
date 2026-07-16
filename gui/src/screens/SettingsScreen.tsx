@@ -33,7 +33,7 @@ export default function SettingsScreen() {
   return (
     <ScreenContainer scrollable>
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>Configuration</Text>
+        <Text style={styles.eyebrow}> </Text>
         <Text style={styles.title}>Registry</Text>
       </View>
 

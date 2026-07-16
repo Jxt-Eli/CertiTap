@@ -56,7 +56,7 @@ export default function MissingScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <ScreenContainer>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>Attendance</Text>
+          <Text style={styles.eyebrow}> </Text>
           <Text style={styles.title}>Absent Students</Text>
           {list.length > 0 ? (
             <View style={styles.badge}>

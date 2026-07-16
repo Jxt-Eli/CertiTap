@@ -3,7 +3,7 @@
 const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
 const PROD_URL = 'https://your-app.railway.app/api/elements';
 
-// Switch to false when building for presentation
+// HACK: Switch to false when building for presentation
 const IS_DEV = true;
 
 const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
@@ -78,6 +78,9 @@ export async function scanCard(uid: string): Promise<ScanResult> {
   }
   if (msg.toLowerCase().includes('mismatch') || msg.toLowerCase().includes('failed')) {
     return { status: 'mismatch', message: msg };
+  }
+  if (msg === 'NOT_FOUND') {
+    return { status: 'not_found', message: 'Card not registered. Add this student?' };
   }
   return { status: 'error', message: msg };
 }
