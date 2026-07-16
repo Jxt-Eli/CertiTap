@@ -1,10 +1,10 @@
 // INFO: ─── Change in prod/dev ────────────────────────────────────
 //
 const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
-const PROD_URL = 'https://your-app.railway.app/api/elements';
+const PROD_URL = 'https://certitap.onrender.com';
 
 // HACK: Switch to false when building for presentation
-const IS_DEV = true;
+const IS_DEV = false;
 
 const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
 
