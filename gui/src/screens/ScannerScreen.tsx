@@ -95,7 +95,7 @@ export default function ScannerScreen() {
     setScanState('verified');
     fadeInResult({
       status: 'verified',
-      message: 'Student registered and marked present.',
+      message: 'Student registered successfully!.',
       uid: pendingUid,
     });
   };
@@ -124,7 +124,7 @@ export default function ScannerScreen() {
   return (
     <ScreenContainer>
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>Attendance</Text>
+        <Text style={styles.eyebrow}> </Text>
         <Text style={styles.title}>CertiTap</Text>
       </View>
 
@@ -176,12 +176,6 @@ export default function ScannerScreen() {
               loading={scanState === 'scanning'}
             />
           ) : null}
-          <AppButton
-            label="Scan Student ID"
-            onPress={handleSimulate}
-            variant="ghost"
-            disabled={scanState === 'scanning'}
-          />
         </View>
       ) : null}
 

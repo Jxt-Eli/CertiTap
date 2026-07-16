@@ -66,9 +66,8 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
       animationType="slide"
       onRequestClose={handleClose}
     >
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={"padding"}
         style={styles.kvWrap}
       >
         <View style={styles.sheet}>
@@ -86,14 +85,14 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
             label="Full Name"
             value={fullName}
             onChangeText={setFullName}
-            placeholder="e.g. Kwame Mensah"
+            placeholder="e.g. Samuel Aidoo"
             autoCapitalize="words"
           />
           <TextInputField
             label="Index Number"
             value={indexNumber}
             onChangeText={setIndexNumber}
-            placeholder="e.g. S1001"
+            placeholder="e.g. 1234567"
             autoCapitalize="characters"
           />
           <View style={styles.actions}>
@@ -114,14 +113,18 @@ export default function AddPersonModal({ visible, cardUid, onClose, onSuccess }:
 
 const styles = StyleSheet.create({
   backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(26,35,64,0.4)',
-  },
-  kvWrap: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(26,35,64,0.4)',
+    zIndex: 1,
+  },
+  kvWrap: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    zIndex: 2,
   },
   sheet: {
     backgroundColor: palette.surface,
