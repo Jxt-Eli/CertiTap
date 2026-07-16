@@ -66,23 +66,6 @@ export default function SettingsScreen() {
         />
       </View>
 
-      {/* Connection info */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Backend Connection</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoKey}>Host</Text>
-          <Text style={styles.infoVal}>10.0.0.166:8080</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoKey}>Base path</Text>
-          <Text style={styles.infoVal}>/api/elements</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoKey}>Database</Text>
-          <Text style={styles.infoVal}>PostgreSQL · 5432</Text>
-        </View>
-      </View>
-
       <FetchRegistryModal
         visible={fetchModalVisible}
         onClose={() => setFetchModalVisible(false)}
