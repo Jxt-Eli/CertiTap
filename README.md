@@ -98,7 +98,7 @@ npx expo run:ios
 | POST | `/api/elements/verify-nfc` | Scan (uid only) or register (full payload) |
 | GET | `/api/elements/unchecked` | Returns list of unchecked student names |
 | POST | `/api/elements/{index}/check-backup` | Manual check-in by index |
-| POST | `/api/elements/fetch-external?startIndex=&limitAmount=` | Pull from school API |
+| POST | `/api/elements/fetch-external?startIndex=&limitAmount=` | Pull student info from UITS API |
 | DELETE | `/api/elements/reset` | Clear pulled records *(add to controller later)* |
 
 ---
