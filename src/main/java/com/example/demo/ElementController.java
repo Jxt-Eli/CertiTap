@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Arrays;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/elements")
 public class ElementController {
@@ -22,7 +23,8 @@ public class ElementController {
     this.studentRepository = studentRepository;
   }
 
-  // NOTE: Endpoint 1: Call external API on demand and save to the 'students' table
+  // NOTE: Endpoint 1: Call external API on demand and save to the 'students'
+  // table
   @PostMapping("/fetch-external")
   public String fetchAndSaveStudents(
       @RequestParam String startIndex,
@@ -54,45 +56,8 @@ public class ElementController {
     return "No records were found to import.";
   }
 
-  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart multipurpose endpoint)
-  // @PostMapping("/verify-nfc")
-  // public String handleNfcTraffic(@RequestBody Map<String, Object> payload) {
-  //
-  //   // 1. REGISTRATION MODE (Saves the manually added student details directly into
-  //   // 'elements' table)
-  //   if (payload.containsKey("fullName") && payload.containsKey("indexNumber")) {
-  //     Element newElement = new Element();
-  //
-  //     // Realigned: Setting values and saving to 'repository' (elements table)
-  //     newElement.setfullName((String) payload.get("fullName"));
-  //     newElement.setIndexNumber((String) payload.get("indexNumber"));
-  //     newElement.setNfcCode((String) payload.get("incomingNfc"));
-  //     newElement.setChecked(false);
-  //
-  //     repository.save(newElement);
-  //     return "Registration Successful: Added student card data to elements table.";
-  //   }
-  //
-  //   // 2. ATTENDANCE LOGGING MODE (Compares and updates the 'elements' table)
-  //   if (payload.containsKey("incomingNfc")) { // && payload.containsKey("indexNumber")) {
-  //     String incomingNfc = (String) payload.get("incomingNfc");
-  //     // String indexNumber = (String) payload.get("indexNumber");
-  //
-  //     // Realigned: Looks up directly inside the 'elements' table
-  //     Optional<Element> found = repository.findByNfcCode(incomingNfc);
-  //         // .orElseThrow(() -> new RuntimeException("Student record not found in elements table."));
-  //
-  //     // if (element.getNfcCode() != null && element.getNfcCode().equals(incomingNfc)) {
-  //     Element element = found.get();
-  //     element.setChecked(true);
-  //     repository.save(element);
-  //     return "NFC Verified and Attendance Marked!";
-  //   // }
-      // return "NFC Verification Failed! Card mismatch.";
-    // }
-  //
-  //   return "Error: Invalid JSON payload structure.";
-  // }
+  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart
+  // multipurpose endpoint)
   @PostMapping("/verify-nfc")
   public String handleNfcTraffic(@RequestBody Map<String, Object> payload) {
 
@@ -124,8 +89,9 @@ public class ElementController {
       return "NFC Verified and Attendance Marked!";
     }
 
-  return "Error: Invalid JSON payload structure.";
-}
+    return "Error: Invalid JSON payload structure.";
+  }
+
   // NOTE: Endpoint 3: Pull full names of all unchecked students
   @GetMapping("/unchecked")
   public List<String> getUncheckedStudentNames() {
@@ -141,18 +107,19 @@ public class ElementController {
         })
         .toList();
   }
- 
+
   @PostMapping("/{indexNumber}/check-backup")
   public String backupCheck(@PathVariable String indexNumber) {
-      // Look up in elements table directly — no registry check needed for manual override
-      Element attendanceRecord = repository.findById(indexNumber)
-          .orElse(new Element());
+    // Look up in elements table directly — no registry check needed for manual
+    // override
+    Element attendanceRecord = repository.findById(indexNumber)
+        .orElse(new Element());
 
-      attendanceRecord.setIndexNumber(indexNumber);
-      attendanceRecord.setChecked(true);
-      repository.save(attendanceRecord);
+    attendanceRecord.setIndexNumber(indexNumber);
+    attendanceRecord.setChecked(true);
+    repository.save(attendanceRecord);
 
-      return "Manual Backup Success: Attendance marked for index " + indexNumber + "!";
+    return "Manual Backup Success: Attendance marked for index " + indexNumber + "!";
   }
 
   // NOTE: Endpoint 5: Clear all external student pulled info from `students`

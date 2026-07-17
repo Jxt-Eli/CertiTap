@@ -11,6 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#F5F7FA"
     },
+    "updates": {
+      "url": "https://u.expo.dev/5a2245d2-a7ba-4abf-b48c-1c758ab8798f"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.codequest.attendance",
@@ -45,6 +48,7 @@
         "projectId": "5a2245d2-a7ba-4abf-b48c-1c758ab8798f"
       }
     },
-    "owner": "jxteli"
+    "owner": "jxteli",
+    "runtimeVersion": "1.0.0"
   }
 }
