@@ -94,6 +94,7 @@ export async function registerStudent(
 }
 
 // ─── Endpoint 3: Fetch unchecked student names ────────────────────────────────
+
 export async function fetchMissingStudents(): Promise<string[]> {
   try {
     const response = await fetch(`${BASE_URL}/unchecked`);
