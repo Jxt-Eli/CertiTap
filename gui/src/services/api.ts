@@ -65,42 +65,25 @@ export async function fetchExternalStudents(
 
 // ─── Endpoint 2a: Scan card — send only UID, backend does lookup ──────────────
 
-// export async function scanCard(uid: string): Promise<ScanResult> {
-//   const result = await post('/verify-nfc', { incomingNfc: uid });
-//   const msg = result.text;
-//   if (!result.ok) return { status: 'error', message: msg };
-//   if (msg.toLowerCase().includes('verified') || msg.toLowerCase().includes('marked')) {
-//     return { status: 'verified', message: msg };
-//   }
-//   if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no record')) {
-//     return { status: 'not_found', message: msg };
-//   }
-//   if (msg.toLowerCase().includes('mismatch') || msg.toLowerCase().includes('failed')) {
-//     return { status: 'mismatch', message: msg };
-//   }
-//   if (msg === 'NOT_FOUND') {
-//     return { status: 'not_found', message: 'Card not registered. Add this student?' };
-//   }
-//   return { status: 'error', message: msg };
-// }
 export async function scanCard(uid: string): Promise<ScanResult> {
-  console.log('Scanning UID:', uid);
-  console.log('Hitting URL:', `${BASE_URL}/verify-nfc`);
   const result = await post('/verify-nfc', { incomingNfc: uid });
-  console.log('Response:', result);
   const msg = result.text;
   if (!result.ok) return { status: 'error', message: msg };
-  if (msg.trim() === 'NOT_FOUND') {
-    return { status: 'not_found', message: 'Card not registered. Add this student?' };
-  }
   if (msg.toLowerCase().includes('verified') || msg.toLowerCase().includes('marked')) {
     return { status: 'verified', message: msg };
+  }
+  if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no record')) {
+    return { status: 'not_found', message: msg };
   }
   if (msg.toLowerCase().includes('mismatch') || msg.toLowerCase().includes('failed')) {
     return { status: 'mismatch', message: msg };
   }
+  if (msg === 'NOT_FOUND') {
+    return { status: 'not_found', message: 'Card not registered. Add this student?' };
+  }
   return { status: 'error', message: msg };
 }
+
 // ─── Endpoint 2b: Register a new student with their card ─────────────────────
 
 export async function registerStudent(
