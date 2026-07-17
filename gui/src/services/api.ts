@@ -1,13 +1,11 @@
 // INFO: ─── Change in prod/dev ────────────────────────────────────
-//
-// const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
-// const PROD_URL = 'https://certitap.onrender.com';
-//
-// // HACK: Switch to false when building for presentation
-// const IS_DEV = false;
-//
-// const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
-  const API_BASE_URL = https://certitap.onrender.com
+
+const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
+const PROD_URL = 'https://codequest-zofs.onrender.com/api/elements';
+
+const IS_DEV = false; // HACK: Switch to false when building for presentation
+
+const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +25,7 @@ export type RegisterPayload = {
 
 async function post(path: string, body: object): Promise<{ ok: boolean; text: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetch(`${BASE_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -47,7 +45,7 @@ async function postQuery(
     const query = new URLSearchParams(
       Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
     ).toString();
-    const response = await fetch(`${API_BASE_URL}${path}?${query}`, { method: 'POST' });
+    const response = await fetch(`${BASE_URL}${path}?${query}`, { method: 'POST' });
     const text = await response.text();
     return { ok: response.ok, text };
   } catch {
@@ -67,25 +65,42 @@ export async function fetchExternalStudents(
 
 // ─── Endpoint 2a: Scan card — send only UID, backend does lookup ──────────────
 
+// export async function scanCard(uid: string): Promise<ScanResult> {
+//   const result = await post('/verify-nfc', { incomingNfc: uid });
+//   const msg = result.text;
+//   if (!result.ok) return { status: 'error', message: msg };
+//   if (msg.toLowerCase().includes('verified') || msg.toLowerCase().includes('marked')) {
+//     return { status: 'verified', message: msg };
+//   }
+//   if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no record')) {
+//     return { status: 'not_found', message: msg };
+//   }
+//   if (msg.toLowerCase().includes('mismatch') || msg.toLowerCase().includes('failed')) {
+//     return { status: 'mismatch', message: msg };
+//   }
+//   if (msg === 'NOT_FOUND') {
+//     return { status: 'not_found', message: 'Card not registered. Add this student?' };
+//   }
+//   return { status: 'error', message: msg };
+// }
 export async function scanCard(uid: string): Promise<ScanResult> {
+  console.log('Scanning UID:', uid);
+  console.log('Hitting URL:', `${BASE_URL}/verify-nfc`);
   const result = await post('/verify-nfc', { incomingNfc: uid });
+  console.log('Response:', result);
   const msg = result.text;
   if (!result.ok) return { status: 'error', message: msg };
+  if (msg.trim() === 'NOT_FOUND') {
+    return { status: 'not_found', message: 'Card not registered. Add this student?' };
+  }
   if (msg.toLowerCase().includes('verified') || msg.toLowerCase().includes('marked')) {
     return { status: 'verified', message: msg };
-  }
-  if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no record')) {
-    return { status: 'not_found', message: msg };
   }
   if (msg.toLowerCase().includes('mismatch') || msg.toLowerCase().includes('failed')) {
     return { status: 'mismatch', message: msg };
   }
-  if (msg === 'NOT_FOUND') {
-    return { status: 'not_found', message: 'Card not registered. Add this student?' };
-  }
   return { status: 'error', message: msg };
 }
-
 // ─── Endpoint 2b: Register a new student with their card ─────────────────────
 
 export async function registerStudent(
@@ -96,10 +111,9 @@ export async function registerStudent(
 }
 
 // ─── Endpoint 3: Fetch unchecked student names ────────────────────────────────
-
 export async function fetchMissingStudents(): Promise<string[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/unchecked`);
+    const response = await fetch(`${BASE_URL}/unchecked`);
     const text = await response.text();
     console.log('unchecked response:', response.status, text);
     if (!response.ok) return [];
@@ -123,7 +137,7 @@ export async function manualCheckIn(
 
 export async function resetRegistry(): Promise<{ success: boolean; message: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/reset`, { method: 'DELETE' });
+    const response = await fetch(`${BASE_URL}/reset`, { method: 'DELETE' });
     const text = await response.text();
     return { success: response.ok, message: text };
   } catch {
