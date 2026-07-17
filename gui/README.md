@@ -10,6 +10,37 @@ A React Native Expo attendance app with NFC support for scanning student cards, 
 - Manual registry fetch and check-in workflows
 - NFC simulation support for Expo development
 
+## Frontend structure
+
+Copy the entire `src/` folder and `App.tsx` into your frontend project root:
+
+```
+your-frontend/
+├── App.tsx                   ← replace existing
+├── app.json                  ← replace existing
+├── babel.config.js           ← replace existing
+├── package.json              ← replace existing
+├── tsconfig.json             ← replace existing
+└── src/
+    ├── theme/index.ts
+    ├── services/api.ts
+    ├── navigation/AppNavigator.tsx
+    ├── components/
+    │   ├── ScreenContainer.tsx
+    │   ├── AppButton.tsx
+    │   ├── TextInputField.tsx
+    │   ├── StatusCard.tsx
+    │   ├── NfcAnimation.tsx
+    │   ├── AddPersonModal.tsx
+    │   └── FetchRegistryModal.tsx
+    └── screens/
+        ├── ScannerScreen.tsx
+        ├── MissingScreen.tsx
+        └── SettingsScreen.tsx
+```
+
+---
+
 ## Requirements
 
 - Node.js / npm
@@ -59,6 +90,18 @@ npx expo run:android
 # or
 npx expo run:ios
 ```
+
+## Backend endpoints
+
+| Method | Path | What it does |
+|--------|------|-------------|
+| POST | `/api/elements/verify-nfc` | Scan (uid only) or register (full payload) |
+| GET | `/api/elements/unchecked` | Returns list of unchecked student names |
+| POST | `/api/elements/{index}/check-backup` | Manual check-in by index |
+| POST | `/api/elements/fetch-external?startIndex=&limitAmount=` | Pull from school API |
+| DELETE | `/api/elements/reset` | Clear pulled records *(add to controller later)* |
+
+---
 
 ## Backend Configuration
 
