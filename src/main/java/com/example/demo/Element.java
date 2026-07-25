@@ -1,15 +1,19 @@
 package com.example.demo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "elements")
 public class Element {
 
-  @Id // Required: Marks indexNumber as the primary key for the 'elements' table
+ @Id // Required: Marks indexNumber as the primary key for the 'elements' table
   private String indexNumber;
-  private String nfcCode;
 
+  @Column(unique = true)
+  private String nfcCode;
   private String fullName;
   private boolean checked = false;
 
