@@ -10,71 +10,82 @@ A React Native Expo attendance app with NFC support for scanning student cards, 
 - Manual registry fetch and check-in workflows
 - NFC simulation support for Expo development
 
-## Frontend structure
+## Project layout
 
-Copy the entire `src/` folder and `App.tsx` into your frontend project root:
+This is a two-part project in one repo:
 
 ```
-your-frontend/
-├── App.tsx                   ← replace existing
-├── app.json                  ← replace existing
-├── babel.config.js           ← replace existing
-├── package.json              ← replace existing
-├── tsconfig.json             ← replace existing
-└── src/
-    ├── theme/index.ts
-    ├── services/api.ts
-    ├── navigation/AppNavigator.tsx
-    ├── components/
-    │   ├── ScreenContainer.tsx
-    │   ├── AppButton.tsx
-    │   ├── TextInputField.tsx
-    │   ├── StatusCard.tsx
-    │   ├── NfcAnimation.tsx
-    │   ├── AddPersonModal.tsx
-    │   └── FetchRegistryModal.tsx
-    └── screens/
-        ├── ScannerScreen.tsx
-        ├── MissingScreen.tsx
-        └── SettingsScreen.tsx
+CertiTap/
+├── src/              ← backend (Spring Boot, Java)
+├── pom.xml           ← backend build config
+└── gui/              ← frontend (Expo / React Native)
+    ├── package.json
+    └── src/
 ```
 
----
+The frontend lives under `gui/` — **you must `cd gui` before running any
+npm command**, since that's where `package.json` actually is. Running
+`npm install` from the repo root will fail (there's no `package.json` there).
 
 ## Requirements
 
 - Node.js / npm
 - Expo CLI
 - Android Studio or Xcode for native builds
-- A backend API compatible with the expected endpoints
+- Java 17+ and Maven (or use the included `./mvnw` wrapper) for the backend
+- A PostgreSQL database for the backend
 
-## Getting Started
+## Running the backend
 
-1. Install dependencies
+1. Copy `.env.example` (repo root) to `.env`, or otherwise set these environment
+   variables: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `UITS_API_URL`. See
+   `.env.example` for details on each.
+2. From the repo root, run:
+
+```bash
+./mvnw spring-boot:run
+```
+
+The API will start on port 8080 by default.
+
+## Running the frontend
+
+1. Move into the frontend folder — **this step is required**:
+
+```bash
+cd gui
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-1. Start the Expo development server
+3. Set your backend URL. Copy `gui/.env.example` to `gui/.env` and set
+   `EXPO_PUBLIC_API_URL` to your backend's address (e.g.
+   `http://<your-laptop-ip>:8080/api/elements`). If you skip this, the app
+   falls back to the deployed production backend.
+
+4. Start the Expo development server:
 
 ```bash
 npm start
 ```
 
-1. Run on Android
+5. Run on Android:
 
 ```bash
 npm run android
 ```
 
-1. Run on iOS
+6. Run on iOS:
 
 ```bash
 npm run ios
 ```
 
-1. Web preview
+7. Web preview:
 
 ```bash
 npm run web
@@ -105,14 +116,13 @@ npx expo run:ios
 
 ## Backend Configuration
 
-The backend base URL is defined in `src/services/api.ts`.
-Update it to match your server address if your machine IP changes.
+The frontend's backend URL is controlled by `EXPO_PUBLIC_API_URL` (see
+"Running the frontend" above), read in `gui/src/services/api.ts`. If unset, it
+falls back to the deployed production URL — there's no hardcoded local IP to
+edit anymore.
 
-Example:
-
-```ts
-const BASE_URL = 'http://10.0.0.166:8080/api/elements';
-```
+The backend's own configuration (database, UITS API) is controlled by the
+environment variables described in the root `.env.example`.
 
 ### Expected backend routes
 
