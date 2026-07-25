@@ -122,7 +122,7 @@ public class ElementController {
     return "Manual Backup Success: Attendance marked for index " + indexNumber + "!";
   }
 
-  // NOTE: Endpoint 5: Clear all external student pulled info from `students`
+  // NOTE: Endpoint 4: Clear all external student pulled info from `students`
   // table
   @DeleteMapping("/reset")
   public String emptyTables() {
