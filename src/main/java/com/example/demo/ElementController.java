@@ -1,5 +1,8 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,100 +21,127 @@ public class ElementController {
   private final StudentRepository studentRepository; // Maps to students table
   private final RestClient restClient = RestClient.create();
 
+  // Real UITS endpoint now comes from config (uits.api.url / UITS_API_URL env var).
+  // Falls back to the old placeholder if nothing is configured, so local dev
+  // still works without extra setup.
+  @Value("${uits.api.url:https://typicode.com}")
+  private String uitsApiUrl;
+
   public ElementController(ElementRepository repository, StudentRepository studentRepository) {
     this.repository = repository;
     this.studentRepository = studentRepository;
   }
 
-  // NOTE: Endpoint 1: Call external API on demand and save to the 'students'
-  // table
+  // Endpoint 1: Call external API on demand and save to the 'students' table
   @PostMapping("/fetch-external")
-  public String fetchAndSaveStudents(
+  public ResponseEntity<String> fetchAndSaveStudents(
       @RequestParam String startIndex,
       @RequestParam int limitAmount) {
 
-    // FIX: ==========Replace with UITS URL=============
+    if (startIndex == null || startIndex.isBlank()) {
+      return ResponseEntity.badRequest().body("startIndex is required.");
+    }
+    if (limitAmount <= 0) {
+      return ResponseEntity.badRequest().body("limitAmount must be greater than 0.");
+    }
+
     String schoolApiUrl = UriComponentsBuilder
-        .fromUriString("https://typicode.com") // TODO: Placeholder endpoint for UITS URL
+        .fromUriString(uitsApiUrl)
         .queryParam("start", startIndex)
         .queryParam("limit", limitAmount)
         .toUriString();
 
     try {
-      // Realigned: Converts JSON to Student array instead of Element array
       Student[] externalStudents = restClient.get()
           .uri(schoolApiUrl)
           .retrieve()
           .body(Student[].class);
 
       if (externalStudents != null && externalStudents.length > 0) {
-        // Realigned: Saves explicitly to the studentRepository (students table)
         studentRepository.saveAll(Arrays.asList(externalStudents));
-        return "Successfully imported " + externalStudents.length + " student records into the registry.";
+        return ResponseEntity.ok(
+            "Successfully imported " + externalStudents.length + " student records into the registry.");
       }
     } catch (Exception e) {
-      return "Failed to fetch from school API: " + e.getMessage();
+      return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+          .body("Failed to fetch from school API: " + e.getMessage());
     }
 
-    return "No records were found to import.";
+    return ResponseEntity.ok("No records were found to import.");
   }
 
-  // NOTE: Endpoint 2: Receive NFC code, compare, and mark checked (smart
-  // multipurpose endpoint)
+  // Endpoint 2: Receive NFC code, compare, and mark checked (smart multipurpose endpoint)
   @PostMapping("/verify-nfc")
-  public String handleNfcTraffic(@RequestBody Map<String, Object> payload) {
+  public ResponseEntity<String> handleNfcTraffic(@RequestBody Map<String, Object> payload) {
 
     // 1. REGISTRATION MODE — fullName present means user filled the popup
     if (payload.containsKey("fullName") && payload.containsKey("indexNumber")) {
+      String fullName = asNonBlankString(payload.get("fullName"));
+      String indexNumber = asNonBlankString(payload.get("indexNumber"));
+      String incomingNfc = asNonBlankString(payload.get("incomingNfc"));
+
+      if (fullName == null) {
+        return ResponseEntity.badRequest().body("fullName is required and cannot be blank.");
+      }
+      if (indexNumber == null) {
+        return ResponseEntity.badRequest().body("indexNumber is required and cannot be blank.");
+      }
+      if (incomingNfc == null) {
+        return ResponseEntity.badRequest().body("incomingNfc is required and cannot be blank.");
+      }
+
       Element newElement = new Element();
-      newElement.setfullName((String) payload.get("fullName"));
-      newElement.setIndexNumber((String) payload.get("indexNumber"));
-      newElement.setNfcCode((String) payload.get("incomingNfc"));
+      newElement.setfullName(fullName);
+      newElement.setIndexNumber(indexNumber);
+      newElement.setNfcCode(incomingNfc);
       newElement.setChecked(false);
       repository.save(newElement);
-      return "Registration Successful";
+      return ResponseEntity.ok("Registration Successful");
     }
 
     // 2. ATTENDANCE MODE — only uid sent
     if (payload.containsKey("incomingNfc")) {
-      String incomingNfc = (String) payload.get("incomingNfc");
-      Optional<Element> found = repository.findByNfcCode(incomingNfc);
-
-      // Not found — tell frontend to show the register popup
-      if (found.isEmpty()) {
-        return "NOT_FOUND";
+      String incomingNfc = asNonBlankString(payload.get("incomingNfc"));
+      if (incomingNfc == null) {
+        return ResponseEntity.badRequest().body("incomingNfc cannot be blank.");
       }
 
-      // Found — mark attendance
+      Optional<Element> found = repository.findByNfcCode(incomingNfc);
+
+      if (found.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT_FOUND");
+      }
+
       Element element = found.get();
       element.setChecked(true);
       repository.save(element);
-      return "NFC Verified and Attendance Marked!";
+      return ResponseEntity.ok("NFC Verified and Attendance Marked!");
     }
 
-    return "Error: Invalid JSON payload structure.";
+    return ResponseEntity.badRequest().body("Error: Invalid JSON payload structure.");
   }
 
-  // NOTE: Endpoint 3: Pull full names of all unchecked students
+  // Endpoint 3: Pull full names of all unchecked students
   @GetMapping("/unchecked")
-  public List<String> getUncheckedStudentNames() {
-    // 1. Get all element rows where checked is false
+  public ResponseEntity<List<String>> getUncheckedStudentNames() {
     List<Element> uncheckedElements = repository.findByCheckedFalse();
 
-    // 2. Map those records to their actual full names from the students registry
-    return uncheckedElements.stream()
-        .map(element -> {
-          return studentRepository.findById(element.getIndexNumber())
-              .map(Student::getFullName)
-              .orElse("Index: " + element.getIndexNumber() + "\n" + " Name: " + element.getfullName() + "\n");
-        })
+    List<String> names = uncheckedElements.stream()
+        .map(element -> studentRepository.findById(element.getIndexNumber())
+            .map(Student::getFullName)
+            .orElse("Index: " + element.getIndexNumber() + "\n" + " Name: " + element.getfullName() + "\n"))
         .toList();
+
+    return ResponseEntity.ok(names);
   }
 
+  // Endpoint 4: Manual index check-in
   @PostMapping("/{indexNumber}/check-backup")
-  public String backupCheck(@PathVariable String indexNumber) {
-    // Look up in elements table directly — no registry check needed for manual
-    // override
+  public ResponseEntity<String> backupCheck(@PathVariable String indexNumber) {
+    if (indexNumber == null || indexNumber.isBlank()) {
+      return ResponseEntity.badRequest().body("indexNumber is required.");
+    }
+
     Element attendanceRecord = repository.findById(indexNumber)
         .orElse(new Element());
 
@@ -119,15 +149,22 @@ public class ElementController {
     attendanceRecord.setChecked(true);
     repository.save(attendanceRecord);
 
-    return "Manual Backup Success: Attendance marked for index " + indexNumber + "!";
+    return ResponseEntity.ok("Manual Backup Success: Attendance marked for index " + indexNumber + "!");
   }
 
-  // NOTE: Endpoint 5: Clear all external student pulled info from `students`
-  // table
+  // Endpoint 5: Clear all external student pulled info from `students` table
   @DeleteMapping("/reset")
-  public String emptyTables() {
+  public ResponseEntity<String> emptyTables() {
     studentRepository.deleteAll();
     repository.deleteAll();
-    return "Success: Tables cleared!";
+    return ResponseEntity.ok("Success: Tables cleared!");
+  }
+
+  private String asNonBlankString(Object value) {
+    if (!(value instanceof String s)) {
+      return null;
+    }
+    String trimmed = s.trim();
+    return trimmed.isEmpty() ? null : trimmed;
   }
 }

@@ -99,7 +99,7 @@ npx expo run:ios
 | GET | `/api/elements/unchecked` | Returns list of unchecked student names |
 | POST | `/api/elements/{index}/check-backup` | Manual check-in by index |
 | POST | `/api/elements/fetch-external?startIndex=&limitAmount=` | Pull student info from UITS API |
-| DELETE | `/api/elements/reset` | Clear pulled records *(add to controller later)* |
+| DELETE | `/api/elements/reset` | Clear pulled records |
 
 ---
 

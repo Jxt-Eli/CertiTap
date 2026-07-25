@@ -1,11 +1,13 @@
-// INFO: ─── Change in prod/dev ────────────────────────────────────
+// ─── API base URL ──────────────────────────────────────────────────────────
+// Set EXPO_PUBLIC_API_URL in a .env file (gitignored) for local dev, e.g.:
+//   EXPO_PUBLIC_API_URL=http://<your-laptop-ip>:8080/api/elements
+// If it's not set, this falls back to the deployed backend, so a normal
+// `npm start` with no .env just works against prod and nobody has to
+// remember to flip a boolean before a demo.
 
-const DEV_URL = 'http://10.29.129.30:8080/api/elements';  // NOTE: Take note of laptop IP changes
 const PROD_URL = 'https://codequest-zofs.onrender.com/api/elements';
 
-const IS_DEV = false; // HACK: Switch to false when building for presentation
-
-const BASE_URL = IS_DEV ? DEV_URL : PROD_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? PROD_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
